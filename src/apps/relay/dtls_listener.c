@@ -336,6 +336,10 @@ static int handle_udp_packet(dtls_listener_relay_server_type *server,
 		chs = (ioa_socket_handle) mvt;
 	}
 
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: dump stun message\n", __FUNCTION__, __LINE__);
+	stun_dump_message(ioa_network_buffer_data(sm->m.sm.nd.nbh), ioa_network_buffer_get_size(sm->m.sm.nd.nbh));
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: end dump stun message\n", __FUNCTION__, __LINE__);
+
 	if (chs && !ioa_socket_tobeclosed(chs)
 			&& (chs->sockets_container == amap)
 			&& (chs->magic == SOCKET_MAGIC)) {
@@ -612,6 +616,11 @@ static int create_new_connected_udp_socket(
 	return server->connect_cb(server->e, &(server->sm));
 }
 
+/**
+ *
+ * When event occurs, will this handler be called concurrently?
+ *
+ */
 static void udp_server_input_handler(evutil_socket_t fd, short what, void* arg)
 {
 	int cycle = 0;
@@ -739,7 +748,9 @@ static void udp_server_input_handler(evutil_socket_t fd, short what, void* arg)
 }
 
 ///////////////////// operations //////////////////////////
-
+/**
+ * Before calling this function, the server's address must be set. Server's ifname must be set.
+ */
 static int create_server_socket(dtls_listener_relay_server_type* server, int report_creation) {
 
   FUNCSTART;

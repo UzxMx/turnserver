@@ -1,1 +1,7 @@
 *.o
+
+bin/
+Makefile
+include/
+lib/
+sqlite/

@@ -88,6 +88,10 @@ u16bits stun_make_error_response(u16bits method);
 
 turn_time_t stun_adjust_allocate_lifetime(turn_time_t lifetime, turn_time_t max_lifetime);
 
+///////////////////////////////////////////////////////////////
+
+void stun_dump_message(const u08bits* buf, size_t blen);
+
 ///////////// STR ////////////////////////////////////////////////
 
 int stun_method_str(u16bits method, char *smethod);

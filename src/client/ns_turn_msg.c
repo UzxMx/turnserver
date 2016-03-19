@@ -30,6 +30,7 @@
 
 #include "ns_turn_msg.h"
 #include "ns_turn_msg_addr.h"
+#include "ns_turn_utils.h"
 
 ///////////// Security functions implementation from ns_turn_msg.h ///////////
 
@@ -355,6 +356,129 @@ int is_channel_msg_str(const u08bits* buf, size_t blen) {
 }
 
 /////////////// message types /////////////////////////////////
+
+void stun_dump_message(const u08bits* buf, size_t blen)
+{
+	if (!buf) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: buf is null\n", __FUNCTION__, __LINE__);
+		return;
+	}
+
+	if (blen < STUN_HEADER_LENGTH) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: buf len(%d) is less than STUN_HEADER_LENGTH(%d)\n", __FUNCTION__, __LINE__, 
+			blen, STUN_HEADER_LENGTH);
+		return;
+	}
+
+	if (STUN_VALID_CHANNEL(nswap16(((const u16bits *)buf)[0]))) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: valid channel\n", __FUNCTION__, __LINE__);
+		return;
+	}
+
+	if (buf[0] & 0xC0 != 0) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: first two bits are not zero\n", __FUNCTION__, __LINE__);
+		return;
+	}
+
+	if (nswap32(((const u32bits *)buf)[1]) != STUN_MAGIC_COOKIE) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: stun magic cookie is invalid\n", __FUNCTION__, __LINE__);
+		return;
+	}
+
+	u16bits len = nswap16(((const u16bits*)buf)[1]);
+	if (len & 0x0003 != 0) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: stun message is not four bytes bound\n", __FUNCTION__, __LINE__);
+		return;
+	}
+
+	if (stun_is_request_str(buf, blen)) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: stun is request\n", __FUNCTION__, __LINE__);
+	} else if (stun_is_success_response_str(buf, len)) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: stun is success response\n", __FUNCTION__, __LINE__);
+	} else if (stun_is_error_response_str(buf, blen, NULL, NULL, 0)) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: stun is error response\n", __FUNCTION__, __LINE__);
+	} else if (stun_is_indication_str(buf, blen)) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: stun is indication\n", __FUNCTION__, __LINE__);
+	}
+
+	u16bits method = stun_get_method_str(buf, blen);
+	char method_str[32];
+	stun_method_str(method, method_str);
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: stun method %s\n", __FUNCTION__, __LINE__, method_str);
+
+	stun_attr_ref sar = stun_attr_get_first_str(buf, blen);
+	ioa_addr addr;
+	u08bits addr_str[64];
+	u08bits *attr_name;
+	while (sar) {
+		int attr_type = stun_attr_get_type(sar);
+		const u08bits* attr_value = stun_attr_get_value(sar);
+		size_t attr_len = stun_attr_get_len(sar);
+		switch (attr_type) {
+		case STUN_ATTRIBUTE_MAPPED_ADDRESS:
+		case OLD_STUN_ATTRIBUTE_RESPONSE_ADDRESS:
+		case STUN_ATTRIBUTE_XOR_MAPPED_ADDRESS:
+		case STUN_ATTRIBUTE_XOR_PEER_ADDRESS:
+		case STUN_ATTRIBUTE_XOR_RELAYED_ADDRESS:
+			if (attr_type == STUN_ATTRIBUTE_MAPPED_ADDRESS) {
+				attr_name = "MAPPED_ADDRESS";
+			} else if (attr_type == OLD_STUN_ATTRIBUTE_RESPONSE_ADDRESS) {
+				attr_name = "RESPONSE_ADDRESS";
+			} else if (attr_type == STUN_ATTRIBUTE_XOR_MAPPED_ADDRESS) {
+				attr_name = "XOR_MAPPED_ADDRESS";
+			} else if (attr_type == STUN_ATTRIBUTE_XOR_PEER_ADDRESS) {
+				attr_name = "XOR_PEER_ADDRESS";
+			} else if (attr_type == STUN_ATTRIBUTE_XOR_RELAYED_ADDRESS) {
+				attr_name = "XOR_RELAYED_ADDRESS";
+			}
+			if (stun_attr_get_addr_str(buf, blen, sar, &addr, NULL) < 0) {
+				TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: %s: get addr failed\n", __FUNCTION__, __LINE__, attr_name);
+				break;
+			}
+			if (addr_to_string(&addr, addr_str) < 0) {
+				TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: %s: convert addr to string failed\n", __FUNCTION__, __LINE__, attr_name);
+				break;
+			}
+			TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: %s: %s\n", __FUNCTION__, __LINE__, attr_name, addr_str);
+			break;
+ 		case STUN_ATTRIBUTE_USERNAME:
+			TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: USERNAME: %.*s\n", __FUNCTION__, __LINE__, attr_len, attr_value);
+			break;
+		case STUN_ATTRIBUTE_MESSAGE_INTEGRITY:
+			TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: MESSAGE_INTEGRITY: len %d\n", __FUNCTION__, __LINE__, attr_len);
+			break;
+		case STUN_ATTRIBUTE_ERROR_CODE:
+			TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: ERROR_CODE\n", __FUNCTION__, __LINE__);
+			break;
+		case STUN_ATTRIBUTE_REALM:
+		case STUN_ATTRIBUTE_NONCE:
+		case STUN_ATTRIBUTE_SOFTWARE:
+		case STUN_ATTRIBUTE_ALTERNATE_SERVER:
+		case STUN_ATTRIBUTE_FINGERPRINT:
+		case STUN_ATTRIBUTE_LIFETIME:
+			if (attr_type == STUN_ATTRIBUTE_REALM) {
+				attr_name = "REALM";
+			} else if (attr_type == STUN_ATTRIBUTE_NONCE) {
+				attr_name = "NONCE";
+			} else if (attr_type == STUN_ATTRIBUTE_SOFTWARE) {
+				attr_name = "SOFTWARE";
+			} else if (attr_type == STUN_ATTRIBUTE_ALTERNATE_SERVER) {
+				attr_name = "ALTERNATE_SERVER";
+			} else if (attr_type == STUN_ATTRIBUTE_FINGERPRINT) {
+				attr_name = "FINGERPRINT";
+			} else if (attr_type == STUN_ATTRIBUTE_LIFETIME) {
+				attr_name = "LIFETIME";
+			}
+			TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: %s: %.*s\n", __FUNCTION__, __LINE__, attr_name, attr_len, attr_value);
+			break;
+		default:
+			TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: unknown attribute type: %d\n", __FUNCTION__, __LINE__, attr_type);
+			break;
+		}
+
+		sar = stun_attr_get_next_str(buf, blen, sar);
+	}
+}
 
 int stun_is_command_message_str(const u08bits* buf, size_t blen)
 {
