@@ -1371,16 +1371,13 @@ static int handle_turn_allocate(turn_turnserver *server,
 
 					if(pxor_relayed_addr1 || pxor_relayed_addr2) {
 
-						stun_set_allocate_response_str(ioa_network_buffer_data(nbh), &len, tid,
+						if (stun_set_allocate_response_str(ioa_network_buffer_data(nbh), &len, tid,
 									pxor_relayed_addr1, pxor_relayed_addr2,
 									get_remote_addr_from_ioa_socket(ss->client_socket), lifetime,
 									0,NULL,
 									out_reservation_token,
-									ss->s_mobile_id);
-
-						TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: dump stun message\n", __FUNCTION__, __LINE__);
-						stun_dump_message(ioa_network_buffer_data(nbh), ioa_network_buffer_get_size(nbh));
-						TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: end dump stun message\n", __FUNCTION__, __LINE__);
+									ss->s_mobile_id) < 0) {
+						}
 
 						if(ss->bps) {
 							stun_attr_add_bandwidth_str(ioa_network_buffer_data(nbh), &len, ss->bps);
@@ -1388,6 +1385,10 @@ static int handle_turn_allocate(turn_turnserver *server,
 
 						ioa_network_buffer_set_size(nbh,len);
 						*resp_constructed = 1;
+
+						TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: dump stun message\n", __FUNCTION__, __LINE__);
+						stun_dump_message(ioa_network_buffer_data(nbh), ioa_network_buffer_get_size(nbh));
+						TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: end dump stun message\n", __FUNCTION__, __LINE__);
 
 						turn_report_allocation_set(&(ss->alloc), lifetime, 0);
 					}
