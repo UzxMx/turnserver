@@ -379,6 +379,7 @@ void stun_dump_message(const u08bits* buf, size_t blen)
 	}
 
 	if (buf[0] & 0xC0 != 0) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "0x%02X\n", buf[0]);
 		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: first two bits are not zero\n", __FUNCTION__, __LINE__);
 		return;
 	}
@@ -698,7 +699,12 @@ void stun_init_buffer_str(u08bits *buf, size_t *len) {
 void stun_init_command_str(u16bits message_type, u08bits* buf, size_t *len) {
   stun_init_buffer_str(buf,len);
   message_type &= (u16bits)(0x3FFF);
+  TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "0x%02X 0x%02X\n", (message_type & 0xFF00) >> 8, (message_type & 0x00FF));
+  TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "0x%02X 0x%02X\n", ((u08bits *) &(message_type))[0], ((u08bits *) &(message_type))[1]);
+  u16bits temp = nswap16(message_type);
+  TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "0x%02X 0x%02X\n", ((u08bits *) &(temp))[0], ((u08bits *) &(temp))[1]);
   ((u16bits*)buf)[0]=nswap16(message_type);
+  TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "0x%02X 0x%02X\n", buf[0], buf[1]);
   ((u16bits*)buf)[1]=0;
   ((u32bits*)buf)[1]=nswap32(STUN_MAGIC_COOKIE);
   stun_tid_generate_in_message_str(buf,NULL);
