@@ -929,7 +929,7 @@ static int handle_turn_allocate(turn_turnserver *server,
 	allocation* alloc = get_allocation_ss(ss);
 
 	if (is_allocation_valid(alloc)) {
-
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: turn allocation valid\n", __FUNCTION__, __LINE__);
 		if (!stun_tid_equals(tid, &(alloc->tid))) {
 			*err_code = 437;
 			*reason = (const u08bits *)"Wrong TID";
@@ -985,7 +985,7 @@ static int handle_turn_allocate(turn_turnserver *server,
 		}
 
 	} else {
-
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: turn allocation invalid\n", __FUNCTION__, __LINE__);
 		u08bits transport = 0;
 		turn_time_t lifetime = 0;
 		int even_port = -1;
@@ -1244,6 +1244,7 @@ static int handle_turn_allocate(turn_turnserver *server,
 
 				if(!(*err_code)) {
 					if(!af4 && !af6) {
+						TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: no af4 and no af6\n", __FUNCTION__, __LINE__);
 						int af4res = create_relay_connection(server, ss, lifetime,
 							STUN_ATTRIBUTE_REQUESTED_ADDRESS_FAMILY_VALUE_DEFAULT, transport,
 							even_port, in_reservation_token, &out_reservation_token,
@@ -1330,7 +1331,7 @@ static int handle_turn_allocate(turn_turnserver *server,
 					}
 
 				} else {
-
+					TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: set_allocation_valid\n", __FUNCTION__, __LINE__);
 					set_allocation_valid(alloc,1);
 
 					stun_tid_cpy(&(alloc->tid), tid);

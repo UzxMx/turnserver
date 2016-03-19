@@ -50,6 +50,9 @@ static void generate_random_nonce(unsigned char *nonce, size_t sz);
 
 ///////////
 
+#define FUNCSTART TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO,"%s:%d:start\n",__FUNCTION__,__LINE__)
+#define FUNCEND TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO,"%s:%d:end\n",__FUNCTION__,__LINE__)
+
 int stun_method_str(u16bits method, char *smethod)
 {
 	int ret = 0;
@@ -487,6 +490,7 @@ void stun_dump_message(const u08bits* buf, size_t blen)
 				TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: REQUEST_TRANSPORT: unknown transport\n", __FUNCTION__, __LINE__);
 				break;				
 			}
+			break;
 		default:
 			TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: unknown attribute type: %d\n", __FUNCTION__, __LINE__, attr_type);
 			break;
@@ -1122,6 +1126,7 @@ int stun_set_allocate_response_str(u08bits* buf, size_t *len, stun_tid* tid,
 				   const ioa_addr *reflexive_addr,
 				   u32bits lifetime, int error_code, const u08bits *reason,
 				   u64bits reservation_token, char* mobile_id) {
+	FUNCSTART;
 
   if(!error_code) {
 
@@ -1159,6 +1164,8 @@ int stun_set_allocate_response_str(u08bits* buf, size_t *len, stun_tid* tid,
   } else {
     stun_init_error_response_str(STUN_METHOD_ALLOCATE, buf, len, error_code, reason, tid);
   }
+
+  FUNCEND;
 
   return 0;
 }
