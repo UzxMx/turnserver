@@ -1378,6 +1378,10 @@ static int handle_turn_allocate(turn_turnserver *server,
 									out_reservation_token,
 									ss->s_mobile_id);
 
+						TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: dump stun message\n", __FUNCTION__, __LINE__);
+						stun_dump_message(ioa_network_buffer_data(nbh), ioa_network_buffer_get_size(nbh));
+						TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: end dump stun message\n", __FUNCTION__, __LINE__);
+
 						if(ss->bps) {
 							stun_attr_add_bandwidth_str(ioa_network_buffer_data(nbh), &len, ss->bps);
 						}
