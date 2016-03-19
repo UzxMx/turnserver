@@ -3242,8 +3242,12 @@ static int check_stun_auth(turn_turnserver *server,
 	u08bits realm[STUN_MAX_REALM_SIZE+1];
 	size_t alen = 0;
 
-	if(!need_stun_authentication(server, ss))
+	FUNCSTART;
+
+	if(!need_stun_authentication(server, ss)) {
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: not need stun authentication\n", __FUNCTION__, __LINE__);
 		return 0;
+	}
 
 	int new_nonce = 0;
 
@@ -3452,6 +3456,8 @@ static int check_stun_auth(turn_turnserver *server,
 	}
 
 	*message_integrity = 1;
+
+	FUNCEND;
 
 	return 0;
 }
