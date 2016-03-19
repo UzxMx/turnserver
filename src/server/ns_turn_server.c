@@ -4187,6 +4187,10 @@ static int write_client_connection(turn_turnserver *server, ts_ur_super_session*
 
 	FUNCSTART;
 
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: dump stun message\n", __FUNCTION__, __LINE__);
+	stun_dump_message(ioa_network_buffer_data(nbh), ioa_network_buffer_get_size(nbh));
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: end dump stun message\n", __FUNCTION__, __LINE__);
+
 	if (!(ss->client_socket)) {
 		ioa_network_buffer_delete(server->e, nbh);
 		FUNCEND;

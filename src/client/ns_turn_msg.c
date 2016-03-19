@@ -471,6 +471,22 @@ void stun_dump_message(const u08bits* buf, size_t blen)
 			}
 			TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: %s: %.*s\n", __FUNCTION__, __LINE__, attr_name, attr_len, attr_value);
 			break;
+		case STUN_ATTRIBUTE_REQUESTED_TRANSPORT:
+			if (attr_len != 4) {
+				TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: REQUEST_TRANSPORT: wrong length %d\n", __FUNCTION__, __LINE__, attr_len);
+				break;
+			}
+			switch (attr_value[0]) {
+			case STUN_ATTRIBUTE_TRANSPORT_TCP_VALUE:
+				TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: REQUEST_TRANSPORT: tcp\n", __FUNCTION__, __LINE__);
+				break;
+			case STUN_ATTRIBUTE_TRANSPORT_UDP_VALUE:
+				TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: REQUEST_TRANSPORT: udp\n", __FUNCTION__, __LINE__);
+				break;
+			default:
+				TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: REQUEST_TRANSPORT: unknown transport\n", __FUNCTION__, __LINE__);
+				break;				
+			}
 		default:
 			TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: unknown attribute type: %d\n", __FUNCTION__, __LINE__, attr_type);
 			break;
