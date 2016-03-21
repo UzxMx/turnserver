@@ -4705,10 +4705,13 @@ static void peer_input_handler(ioa_socket_handle s, int event_type,
 			turn_permission_info* tinfo = allocation_get_permission(a,
 							&(in_buffer->src_addr));
 			if (tinfo) {
+				TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: turn permission exists\n", __FUNCTION__, __LINE__);
 				chnum = get_turn_channel_number(tinfo, &(in_buffer->src_addr));
 			} else if(!(server->server_relay)) {
 				return;
 			}
+
+			TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d\n", __FUNCTION__, __LINE__);
 
 			if (chnum) {
 
