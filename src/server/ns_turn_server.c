@@ -4658,6 +4658,8 @@ int open_client_connection_session(turn_turnserver* server,
 static void peer_input_handler(ioa_socket_handle s, int event_type,
 		ioa_net_data *in_buffer, void *arg, int can_resume) {
 
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s: start\n", __FUNCTION__);
+
 	if (!(event_type & IOA_EV_READ) || !arg) return;
 
 	if(in_buffer->recv_ttl==0) return;
@@ -4697,6 +4699,9 @@ static void peer_input_handler(ioa_socket_handle s, int event_type,
 
 			ioa_network_buffer_handle nbh = NULL;
 
+			u08bits temp[32];
+			addr_to_string(&(in_buffer->src_addr), temp);
+			TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: src address %s\n", __FUNCTION__, __LINE__, temp);
 			turn_permission_info* tinfo = allocation_get_permission(a,
 							&(in_buffer->src_addr));
 			if (tinfo) {
@@ -4765,10 +4770,14 @@ static void peer_input_handler(ioa_socket_handle s, int event_type,
 			write_client_connection(server, ss, nbh, in_buffer->recv_ttl-1, in_buffer->recv_tos);
 		}
 	}
+
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s: end\n", __FUNCTION__);
 }
 
 static void client_input_handler(ioa_socket_handle s, int event_type,
 		ioa_net_data *data, void *arg, int can_resume) {
+
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s: start\n", __FUNCTION__);
 
 	if (!arg)
 		return;
@@ -4797,6 +4806,8 @@ static void client_input_handler(ioa_socket_handle s, int event_type,
 		}
 		set_ioa_socket_tobeclosed(s);
 	}
+
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s: end\n", __FUNCTION__);
 }
 
 ///////////////////////////////////////////////////////////
