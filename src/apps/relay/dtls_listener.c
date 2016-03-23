@@ -930,6 +930,8 @@ static int init_server(dtls_listener_relay_server_type* server,
 
   if(ifname) STRCPY(server->ifname,ifname);
 
+  TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: port %d\n", __FUNCTION__, __LINE__,
+  	port);
   if(make_ioa_addr((const u08bits*)local_address, port, &server->addr)<0) {
 	  TURN_LOG_FUNC(TURN_LOG_LEVEL_ERROR,"Cannot create a DTLS/UDP listener for address: %s\n",local_address);
 	  return -1;
