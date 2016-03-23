@@ -784,6 +784,8 @@ static int create_server_socket(dtls_listener_relay_server_type* server, int rep
 		  int addr_bind_cycle = 0;
 		  retry_addr_bind:
 
+		  TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: addr_bind\n", __FUNCTION__, 
+		  	__LINE__);
 		  if(addr_bind(udp_listen_fd,&server->addr,1,1,UDP_SOCKET)<0) {
 			  perror("Cannot bind local socket to addr");
 			  char saddr[129];
@@ -807,6 +809,7 @@ static int create_server_socket(dtls_listener_relay_server_type* server, int rep
   }
 
   if(report_creation) {
+  	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: report_creation\n", __FUNCTION__, __LINE__);
 	  if(!turn_params.no_udp && !turn_params.no_dtls)
 		  addr_debug_print(server->verbose, &server->addr,"DTLS/UDP listener opened on");
 	  else if(!turn_params.no_dtls)
