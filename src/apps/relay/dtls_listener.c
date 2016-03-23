@@ -445,6 +445,7 @@ static int handle_udp_packet(dtls_listener_relay_server_type *server,
 #endif
 
 		if(!chs) {
+			TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: create ioa socket from fd\n", __FUNCTION__, __LINE__);
 			chs = create_ioa_socket_from_fd(ioa_eng, s->fd, s,
 				UDP_SOCKET, CLIENT_SOCKET, &(sm->m.sm.nd.src_addr),
 				get_local_addr_from_ioa_socket(s));

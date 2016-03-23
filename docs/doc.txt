@@ -1,5 +1,7 @@
 listener thread
-2 relay server thread
+
+general relay server:
+每个general relay server对应一个event loop，运行在单独的线程中
 
 ## struct relay_server (ns_ioalib_impl.h)
 	turnserver_id id;
