@@ -1333,6 +1333,7 @@ static void setup_socket_per_thread_udp_listener_servers(void)
 				turn_params.listener.udp_services[index+1] = (dtls_listener_relay_server_type**)allocate_super_memory_engine(turn_params.listener.ioa_eng, sizeof(dtls_listener_relay_server_type*) * get_real_general_relay_servers_number());
 
 				for(relayindex=0;relayindex<get_real_general_relay_servers_number();relayindex++) {
+					TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: relayindex %d port %d\n", __FUNCTION__, __LINE__, relayindex, get_alt_listener_port());
 					turn_params.listener.udp_services[index+1][relayindex] = create_dtls_listener_server(turn_params.listener_ifname, turn_params.listener.addrs[i], get_alt_listener_port(), turn_params.verbose,
 							general_relay_servers[relayindex]->ioa_eng, &(general_relay_servers[relayindex]->server), !relayindex, NULL);
 				}
