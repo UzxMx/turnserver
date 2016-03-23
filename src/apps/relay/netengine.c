@@ -1106,6 +1106,9 @@ static void setup_socket_per_endpoint_udp_listener_servers(void)
 {
 	size_t i = 0;
 
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d\n", __FUNCTION__
+		, __LINE__);
+
 	/* Adjust udp relay number */
 
 	if(turn_params.general_relay_servers_number>1) {
@@ -1277,6 +1280,9 @@ static void setup_socket_per_thread_udp_listener_servers(void)
 	size_t i = 0;
 	size_t relayindex = 0;
 
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d\n", __FUNCTION__
+		, __LINE__);
+
 	/* Create listeners */
 
 	for(relayindex=0;relayindex<get_real_general_relay_servers_number();relayindex++) {
@@ -1364,6 +1370,9 @@ static void setup_socket_per_thread_udp_listener_servers(void)
 static void setup_socket_per_session_udp_listener_servers(void)
 {
 	size_t i = 0;
+
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d\n", __FUNCTION__
+		, __LINE__);
 
 	/* Aux UDP servers */
 	for(i=0; i<turn_params.aux_servers_list.size; i++) {
@@ -1662,6 +1671,8 @@ static void *run_general_relay_thread(void *arg)
 {
   static int always_true = 1;
   struct relay_server *rs = (struct relay_server *)arg;
+
+  TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d:run general relay thread, turnserver_id is %d\n", __FUNCTION__, __LINE__, rs->id);
   
   int udp_reuses_the_same_relay_server = (turn_params.general_relay_servers_number<=1) || (turn_params.net_engine_version == NEV_UDP_SOCKET_PER_THREAD) || (turn_params.net_engine_version == NEV_UDP_SOCKET_PER_SESSION);
 

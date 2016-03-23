@@ -1,0 +1,438 @@
+## struct relay_server (ns_ioalib_impl.h)
+	turnserver_id id;
+	super_memory_t* sm;
+	struct event_base* event_base;
+	struct bufferevent *in_buf;
+	struct bufferevent *out_buf;
+	struct bufferevent *auth_in_buf;
+	struct bufferevent *auth_out_buf;
+## ioa_engine_handle ioa_eng;
+
+	turn_turnserver server;
+	pthread_t thr;
+
+
+# general_relay_servers;
+# udp_relay_servers;
+
+# struct listener_server (mainrelay.h)
+
+	rtcp_map* rtcpmap;
+## turnipports* tp;
+ip 到 ports 的映射
+与变量turnipports_singleton指向同一块内存区域
+
+
+	struct event_base* event_base;
+	ioa_engine_handle ioa_eng;
+	struct bufferevent *in_buf;
+	struct bufferevent *out_buf;
+## char **addrs;
+检测出来的本地地址列表
+
+## ioa_addr **encaddrs;
+
+## size_t addrs_number;
+地址列表数量
+
+## size_t services_number;
+	dtls_listener_relay_server_type ***udp_services;
+	dtls_listener_relay_server_type ***dtls_services;
+	dtls_listener_relay_server_type ***aux_udp_services;
+
+
+# struct _turn_params_ : global variable, defined in mainrelay.c which is named turn_params.
+
+//////////////// OpenSSL group //////////////////////
+
+  SSL_CTX *tls_ctx_ssl23;
+  
+  SSL_CTX *tls_ctx_v1_0;
+  
+#if TLSv1_1_SUPPORTED
+  SSL_CTX *tls_ctx_v1_1;
+#if TLSv1_2_SUPPORTED
+  SSL_CTX *tls_ctx_v1_2;
+#endif
+#endif
+  
+#if DTLS_SUPPORTED
+  SSL_CTX *dtls_ctx;
+#if DTLSv1_2_SUPPORTED
+  SSL_CTX *dtls_ctx_v1_2;
+#endif
+#endif
+  
+## DH_KEY_SIZE dh_key_size;
+DH_1066
+
+--dh566			Use 566 bits predefined DH TLS key. Default size of the key is 1066.
+
+--dh2066		Use 2066 bits predefined DH TLS key. Default size of the key is 1066.
+
+
+
+## char cipher_list[1025];
+""
+
+## char ec_curve_name[33];
+""
+
+## char ca_cert_file[1025];
+""
+
+## char cert_file[1025];
+"turn_server_cert.pem"
+
+## char pkey_file[1025];
+"turn_server_pkey.pem"
+
+## char tls_password[513];
+""
+
+## char dh_file[1025];
+""
+
+## int no_tlsv1; 
+## int no_tlsv1_1;
+## int no_tlsv1_2;
+all default 0
+
+## int no_tls;
+depends on compilation options
+
+## int no_dtls;
+depends on compilation options
+
+//////////////// Common params ////////////////////
+
+## int verbose;
+TURN_VERBOSE_NONE
+
+## int turn_daemon;
+0
+ 
+## int do_not_use_config_file;
+0
+
+## char pidfile[1025];
+"/var/run/turnserver.pid"
+
+////////////////  Listener server /////////////////
+
+## int listener_port;
+DEFAULT_STUN_PORT 3478
+
+-p, --listening-port	TURN listener port for UDP and TCP listeners (Default: 3478).
+			Note: actually, TLS & DTLS sessions can connect to the "plain" TCP & UDP
+			port(s), too - if allowed by configuration.
+
+## int tls_listener_port;
+DEFAULT_STUN_TLS_PORT 5349
+
+## int alt_listener_port;
+0
+
+## int alt_tls_listener_port;
+0
+
+## int rfc5780;
+1
+NAT Behavior Discovery Using Session Traversal Utilities for NAT (STUN)
+
+
+## int no_udp;
+0
+
+## int no_tcp;
+0
+  
+## vint no_tcp_relay;
+0
+
+## vint no_udp_relay;
+0
+
+## char listener_ifname[1025];
+""
+
+-d, --listening-device	Listener interface device.
+			(NOT RECOMMENDED. Optional functionality, Linux only). 
+			The turnserver process must have root privileges to bind the 
+			listening endpoint to a device. If turnserver must run as a 
+			process without root privileges, then just do not use this setting.
+
+## char redis_statsdb[1025];
+""
+
+## int use_redis_statsdb;
+0
+
+## struct listener_server listener;
+all fileds default NULL
+
+## ip_range_list_t ip_whitelist;
+{NULL, 0}
+
+## ip_range_list_t ip_blacklist;
+{NULL, 0}
+
+## NET_ENG_VERSION net_engine_version;
+NEV_UNKNOWN 0
+可取的值包括：NEV_UDP_SOCKET_PER_ENDPOINT, NEV_UDP_SOCKET_PER_THREAD, NEV_UDP_SOCKET_PER_SESSION
+
+--ne=[1|2|3]		Set network engine type for the process (for internal purposes).
+
+
+## const char* net_engine_version_txt[NEV_TOTAL];
+{ "Unknown", "UDP listening socket per session", "UDP thread per network endpoint", "UDP thread per CPU core" },
+
+//////////////// Relay servers /////////////
+
+## u16bits min_port;
+LOW_DEFAULT_PORTS_BOUNDARY 49152
+ 
+## u16bits max_port;
+HIGH_DEFAULT_PORTS_BOUNDARY 65535
+
+## vint check_origin;
+0
+
+## vint no_multicast_peers;
+0
+
+## vint no_loopback_peers;
+0
+
+## char relay_ifname[1025];
+""
+
+-i, --relay-device	Relay interface device for relay sockets 
+			(NOT RECOMMENDED. Optional, Linux only).
+
+## size_t relays_number;
+地址列表数量
+ 
+## char **relay_addrs;
+检测出来的地址列表
+
+## int default_relays;
+0
+
+// Single global public IP.
+// If multiple public IPs are used
+// then ioa_addr mapping must be used.
+ioa_addr *external_ip;
+NULL
+
+## turnserver_id general_relay_servers_number;
+DEFAULT_GENERAL_RELAY_SERVERS_NUMBER  1
+
+## turnserver_id udp_relay_servers_number;
+0
+
+////////////// Auth server ////////////////
+
+## char oauth_server_name[1025];
+""
+--server-name
+Server name used for the oAuth authentication purposes.
+The default value is the realm name.
+
+## char domain[1025];
+""
+在init_domain中初始化，被main方法调用
+如果定义了TURN_NO_GETDOMAINNAME，则不进行任何操作；
+否则调用系统的getdomainname函数
+
+## int oauth;
+0
+--oauth
+Support oAuth authentication, as in the third-party STUN/TURN RFC 7635.
+
+/////////////// AUX SERVERS ////////////////
+
+## turn_server_addrs_list_t aux_servers_list;
+
+
+## int udp_self_balance;
+0
+
+/////////////// ALTERNATE SERVERS ////////////////
+
+## turn_server_addrs_list_t alternate_servers_list;
+
+## turn_server_addrs_list_t tls_alternate_servers_list;
+
+## int stop_turn_server;
+0
+
+////////////// MISC PARAMS ////////////////
+
+## vint stun_only;
+0
+
+## vint no_stun;
+0
+ 
+## vint secure_stun;
+0
+
+## int server_relay;
+0
+
+--server-relay		Server relay. NON-STANDARD AND DANGEROUS OPTION. 
+			Only for those applications when we want to run 
+			server applications on the relay endpoints.
+			This option eliminates the IP permissions check 
+			on the packets incoming to the relay endpoints.
+			See http://tools.ietf.org/search/rfc5766#section-17.2.3 .
+
+## int fingerprint;
+0
+
+## char rest_api_separator;
+":"
+
+## vint stale_nonce;
+0
+
+## vint mobility;
+0
+
+--mobility		Mobility with ICE (MICE) specs support.
+
+## turn_credential_type ct;
+TURN_CREDENTIALS_NONE
+
+## int use_auth_secret_with_timestamp;
+0
+
+## band_limit_t max_bps;
+0
+
+## band_limit_t bps_capacity;
+0
+
+## band_limit_t bps_capacity_allocated;
+0
+ 
+## vint total_quota;
+0
+
+## vint user_quota;
+0
+
+/////// Users DB ///////////
+
+## default_users_db_t default_users_db;
+TURN_USERDB_TYPE_SQLITE 0
+
+/////// CPUs //////////////
+
+## unsigned long cpus;
+DEFAULT_CPUS_NUMBER 2
+
+
+# struct dtls_listener_relay_server_type(dtls_listener_relay_server_info, dtls_listener.c)
+
+## char ifname[1025];
+
+## ioa_addr addr;
+
+## ioa_engine_handle e;
+
+## turn_turnserver *ts;
+
+## int verbose;
+
+#if DTLS_SUPPORTED
+  SSL_CTX *dtls_ctx;
+#if DTLSv1_2_SUPPORTED
+  SSL_CTX *dtls_ctx_v1_2;
+#endif
+#endif
+
+## struct event *udp_listen_ev;
+
+## ioa_socket_handle udp_listen_s;
+
+## ur_addr_map *children_ss; /* map of socket children on remote addr */
+
+## struct message_to_relay sm;
+
+## int slen0;
+
+## ioa_engine_new_connection_event_handler connect_cb;
+
+
+
+# struct _turn_turnserver (ns_turn_server.h)
+
+## turn_time_t ctime
+
+
+
+	turnserver_id id;
+
+	turnsession_id session_id_counter;
+	ur_map *sessions_map;
+
+	turn_time_t ctime;
+
+	ioa_engine_handle e;
+	int verbose;
+	int fingerprint;
+	int rfc5780;
+	vintp check_origin;
+	vintp stale_nonce;
+	vintp stun_only;
+	vintp no_stun;
+	vintp secure_stun;
+	turn_credential_type ct;
+	get_alt_addr_cb alt_addr_cb;
+	send_message_cb sm_cb;
+	dont_fragment_option_t dont_fragment;
+	int (*disconnect)(ts_ur_super_session*);
+	get_user_key_cb userkeycb;
+	check_new_allocation_quota_cb chquotacb;
+	release_allocation_quota_cb raqcb;
+	int external_ip_set;
+	ioa_addr external_ip;
+	vintp no_loopback_peers;
+	vintp no_multicast_peers;
+	send_turn_session_info_cb send_turn_session_info;
+	send_https_socket_cb send_https_socket;
+
+	/* RFC 6062 ==>> */
+	vintp no_udp_relay;
+	vintp no_tcp_relay;
+	ur_map *tcp_relay_connections;
+	send_socket_to_relay_cb send_socket_to_relay;
+	/* <<== RFC 6062 */
+
+	/* Alternate servers ==>> */
+	turn_server_addrs_list_t *alternate_servers_list;
+	size_t as_counter;
+	turn_server_addrs_list_t *tls_alternate_servers_list;
+	size_t tls_as_counter;
+	turn_server_addrs_list_t *aux_servers_list;
+	int self_udp_balance;
+
+	/* White/black listing of address ranges */
+	ip_range_list_t* ip_whitelist;
+	ip_range_list_t* ip_blacklist;
+
+	/* Mobility */
+	vintp mobility;
+	ur_map *mobile_connections_map;
+
+	/* Server relay */
+	int server_relay;
+
+	/* Bandwidth draft: */
+	allocate_bps_cb allocate_bps_func;
+
+	/* oAuth: */
+	int oauth;
+	const char* oauth_server_name;
