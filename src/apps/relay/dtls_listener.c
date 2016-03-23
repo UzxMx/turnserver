@@ -808,7 +808,7 @@ static int create_server_socket(dtls_listener_relay_server_type* server, int rep
 	  event_add(server->udp_listen_ev,NULL);
   }
 
-  if(report_creation) {
+  // if(report_creation) {
   	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s:%d: report_creation\n", __FUNCTION__, __LINE__);
 	  if(!turn_params.no_udp && !turn_params.no_dtls)
 		  addr_debug_print(server->verbose, &server->addr,"DTLS/UDP listener opened on");
@@ -816,7 +816,7 @@ static int create_server_socket(dtls_listener_relay_server_type* server, int rep
 		  addr_debug_print(server->verbose, &server->addr,"DTLS listener opened on");
 	  else if(!turn_params.no_udp)
 		  addr_debug_print(server->verbose, &server->addr,"UDP listener opened on");
-  }
+  // }
 
   FUNCEND;
   

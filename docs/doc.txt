@@ -1,3 +1,6 @@
+listener thread
+2 relay server thread
+
 ## struct relay_server (ns_ioalib_impl.h)
 	turnserver_id id;
 	super_memory_t* sm;
