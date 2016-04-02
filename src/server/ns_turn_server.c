@@ -4662,8 +4662,8 @@ static void peer_input_handler(ioa_socket_handle s, int event_type,
 
 	u08bits local_addr_str[32], remote_addr_str[32];
 
-	addr_to_string(&s->local_addr, local_addr_str);
-	addr_to_string(&s->remote_addr, remote_addr_str);
+	addr_to_string(get_local_addr_from_ioa_socket(s), local_addr_str);
+	addr_to_string(get_remote_addr_from_ioa_socket(s), remote_addr_str);
 
 	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s: local addr: %s remote addr: %s\n", __FUNCTION__, local_addr_str, remote_addr_str);
 
