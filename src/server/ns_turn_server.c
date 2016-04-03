@@ -2902,6 +2902,10 @@ static int handle_turn_send(turn_turnserver *server, ts_ur_super_session *ss,
 	addr_set_any(&peer_addr);
 	allocation* a = get_allocation_ss(ss);
 
+	u08bits sock_addr_str[32], peer_addr_str[32];
+	addr_to_string(get_local_addr_from_ioa_socket(get_relay_socket_ss(ss, AF_INET)), sock_addr_str);
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s: receive send indication for %s\n", __FUNCTION__, sock_addr_str);
+
 	if(ss->is_tcp_relay) {
 		*err_code = 403;
 		*reason = (const u08bits *)"Send cannot be used with TCP relay";
@@ -2950,6 +2954,9 @@ static int handle_turn_send(turn_turnserver *server, ts_ur_super_session *ss,
 						     sar);
 		}
 
+		addr_to_string(&peer_addr, peer_addr_str);
+		TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s: peer address is %s\n", __FUNCTION__, peer_addr_str);
+
 		if (*err_code) {
 			;
 		} else if (*ua_num > 0) {
@@ -2976,6 +2983,7 @@ static int handle_turn_send(turn_turnserver *server, ts_ur_super_session *ss,
 					ioa_network_buffer_set_size(nbh,len);
 				}
 				ioa_network_buffer_header_init(nbh);
+				TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s: %s => %s\n", __FUNCTION__, sock_addr_str, peer_addr_str);
 				send_data_from_ioa_socket_nbh(get_relay_socket_ss(ss,peer_addr.ss.sa_family), &peer_addr, nbh, in_buffer->recv_ttl-1, in_buffer->recv_tos, NULL);
 				in_buffer->nbh = NULL;
 			}
