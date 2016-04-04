@@ -3010,6 +3010,14 @@ int udp_send(ioa_socket_handle s, const ioa_addr* dest_addr, const s08bits* buff
 	int rc = 0;
 	evutil_socket_t fd = -1;
 
+	u08bits local_addr_str[32], dest_addr_str[32];
+	addr_to_string(get_local_addr_from_ioa_socket(s), local_addr_str);
+	if (dest_addr) {
+		addr_to_string(dest_addr, dest_addr_str);
+	}
+
+	TURN_LOG_FUNC(TURN_LOG_LEVEL_INFO, "%s: from %s to %s\n", __FUNCTION__, local_addr_str, dest_addr ? dest_addr_str : "");
+
 	if(!s)
 		return -1;
 
